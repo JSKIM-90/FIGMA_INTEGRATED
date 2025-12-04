@@ -1,0 +1,6 @@
+[submodule "Figma_Conversion"]
+	path = Figma_Conversion
+	url = https://github.com/JSKIM-90/FIGMA_CONVERSION.git
+[submodule "RNBT_architecture"]
+	path = RNBT_architecture
+	url = https://github.com/JSKIM-90/RNBT_architecture.git
