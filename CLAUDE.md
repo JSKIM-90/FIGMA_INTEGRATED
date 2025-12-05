@@ -42,25 +42,68 @@ This monorepo contains two interconnected projects for a visual web builder plat
 
 ### Contract (약속) 정의
 
-레이아웃 없이도 작업하기 위해 **Topic**과 **Event** 약속을 먼저 정의:
+레이아웃 없이도 작업하기 위해 **Topic**과 **Event** 약속이 필요합니다.
+이 약속을 정의하는 방식은 두 가지가 있습니다:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │  약속 (Contract)                                                     │
 │                                                                      │
-│  1. Topic: 페이지가 publish할 데이터                                  │
+│  1. Topic: 컴포넌트가 구독할 데이터                                    │
 │     예: 'users', 'stats', 'alerts'                                   │
 │                                                                      │
-│  2. Event: 페이지가 처리할 커스텀 이벤트                                │
+│  2. Event: 컴포넌트가 발행할 커스텀 이벤트                              │
 │     예: '@userClicked', '@refreshRequested'                          │
-│                                                                      │
-│  * Claude가 기획자 역할로 Figma 디자인 보고 샘플 정의                   │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
+### 두 가지 접근법
+
+#### 접근법 A: Top-Down (Page/기획 주도)
+
+```
+기획/Page 설계 → Contract 정의 → 컴포넌트가 Contract에 맞춰 구현
+```
+
+**장점**:
+- 전체 데이터 흐름이 명확
+- API 설계와 동시 진행 가능
+
+**단점**:
+- Page 설계가 완료되어야 컴포넌트 작업 시작 가능
+- 컴포넌트 재사용성이 Page에 종속될 수 있음
+
+#### 접근법 B: Bottom-Up (컴포넌트 주도)
+
+```
+Figma 컴포넌트 → 데이터 구조 추론 → 컴포넌트가 Contract 제안 → Page가 채택/조정
+```
+
+**장점**:
+- Page 없이 컴포넌트 독립 개발 가능
+- 컴포넌트 재사용성 극대화
+- 함수형 프로그래밍 원칙: "함수가 기대하는 데이터 형태를 선언"
+
+**단점**:
+- 컴포넌트가 제안한 구조와 실제 API가 다를 수 있음 (어댑터 필요)
+- Figma에서 추론 가능한 것은 샘플 수준 (필드명, 중첩 구조는 불확실)
+
+**데이터 구조 추론 가능 범위**:
+- ✅ 가능: 반복 패턴, 필드 개수, 대략적인 타입
+- ⚠️ 불확실: 필드명, 중첩 구조, 실제 API 응답 형태
+
+#### 권장: 상황에 따라 선택
+
+| 상황 | 권장 접근법 |
+|------|------------|
+| 전체 페이지 설계가 확정됨 | A (Top-Down) |
+| 컴포넌트 먼저 개발, 페이지는 나중 | B (Bottom-Up) |
+| 재사용 가능한 컴포넌트 라이브러리 구축 | B (Bottom-Up) |
+| API 스펙이 이미 존재 | A (Top-Down) |
+
 ### 독립 작업 가능한 영역
 
-약속이 정의되면 **레이아웃 없이** 병렬 작업 가능:
+Contract가 정의되면 (어떤 접근법이든) **레이아웃 없이** 병렬 작업 가능:
 
 ```
         ┌──────────────────────┬──────────────────────┬───────────────────────┐
@@ -80,12 +123,65 @@ This monorepo contains two interconnected projects for a visual web builder plat
                                        │
                                        ▼
                     ┌─────────────────────────────────────┐
-                    │  레이아웃 작업 (나중에)               │
+                    │  레이아웃 작업 (마지막)               │
                     │                                     │
                     │  - 전체 대시보드 구성                 │
                     │  - CONTAINER_STYLES.md 작성          │
                     │  - 컴포넌트 조립                      │
+                    │  - Page가 Orchestrator 역할          │
                     └─────────────────────────────────────┘
+```
+
+### Bottom-Up 접근법 상세 (컴포넌트 주도)
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│  1. Figma 컴포넌트 분석                                               │
+│                                                                      │
+│     Figma 디자인에서 데이터 구조 추론:                                  │
+│     - 반복되는 요소 → 배열                                            │
+│     - 라벨+값 쌍 → 객체 필드                                          │
+│     - 헤더 영역 → summary 객체                                        │
+│                                                                      │
+│     예: "구간별 성능현황" 컴포넌트                                      │
+│     {                                                                │
+│       header: { count: 681, total: 16959.0, avg: 0.603 },           │
+│       items: [                                                       │
+│         { label: '전체', tps: 61.0, responseTime: 0.001 },           │
+│         ...                                                          │
+│       ]                                                              │
+│     }                                                                │
+└──────────────────────────────┬──────────────────────────────────────┘
+                               │
+                               ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  2. render 함수가 데이터 구조를 "선언"                                  │
+│                                                                      │
+│     function renderData(response) {                                  │
+│         const { data } = response;                                   │
+│         if (!data) return;                                           │
+│                                                                      │
+│         // 이 함수는 이런 구조를 기대한다고 명시                         │
+│         const { header, items } = data;                              │
+│         // ... 렌더링 로직                                            │
+│     }                                                                │
+└──────────────────────────────┬──────────────────────────────────────┘
+                               │
+                               ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  3. mock 데이터로 preview.html 검증                                   │
+│                                                                      │
+│     컴포넌트가 독립적으로 동작하는지 확인                                │
+│     Page 없이 mock 데이터만으로 렌더링 테스트                           │
+└──────────────────────────────┬──────────────────────────────────────┘
+                               │
+                               ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  4. Page/API가 컴포넌트의 Contract에 맞춤                              │
+│                                                                      │
+│     - API가 컴포넌트 기대 구조로 응답                                   │
+│     - 또는 Page에서 어댑터로 변환                                       │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
 ### 컴포넌트 변환: 정적 → 동적
@@ -299,6 +395,101 @@ function renderData({ response }) {
         console.error('[Chart]', e);
     }
 }
+```
+
+---
+
+## 실제 작업 예시: TimeTrendChart (시간대별 거래추이)
+
+### 프로젝트 정보
+
+- **Figma 프로젝트**: HANA_BANK_HIT_Dev
+- **노드 ID**: 781:47816
+- **컴포넌트 크기**: 831 × 350px
+- **컴포넌트 타입**: page (ECharts Area Chart)
+
+### 작업 흐름 (Bottom-Up 접근법)
+
+```
+1. Figma MCP로 디자인 정보 추출
+   - get_design_context (dirForAssetWrites로 에셋 자동 다운로드)
+   - get_screenshot (원본 비교용)
+
+2. 데이터 구조 추론 (Bottom-Up)
+   - 차트 시리즈 5개: 역대픽, 연중최고픽, 월픽, 전일, 금일
+   - X축: 시간대 (00~22, 2시간 간격)
+   - Y축: 수치 (0~1,800)
+   - 필터 버튼: 전체, 상품, 1Q
+
+3. Figma_Conversion: 정적 HTML/CSS 생성
+   - Tailwind React → 순수 HTML/CSS 변환
+   - Playwright 스크린샷 검증
+
+4. RNBT_architecture: 동적 컴포넌트 변환
+   - ECharts 기반 Area Chart 구현
+   - Topic/Event 정의
+   - preview.html로 독립 검증
+```
+
+### 생성된 파일 구조
+
+```
+Figma_Conversion/Conversion/HANA_BANK_HIT_Dev/
+└── time-trend-chart/
+    ├── assets/                    # 10개 SVG 에셋
+    ├── screenshots/impl.png       # Playwright 검증
+    ├── time-trend-chart.html      # 정적 HTML
+    └── time-trend-chart.css       # 순수 CSS
+
+RNBT_architecture/Projects/HANA_BANK_HIT_Dev/
+└── page/components/TimeTrendChart/
+    ├── views/component.html       # 동적 템플릿
+    ├── styles/component.css       # 컴포넌트 CSS
+    ├── scripts/
+    │   ├── register.js            # ECharts 초기화 + 구독
+    │   └── destroy.js             # 정리
+    ├── preview.html               # 독립 검증
+    └── preview_screenshot.png     # 검증 결과
+```
+
+### Contract 정의 (Bottom-Up 결과)
+
+```javascript
+// Topic
+timeTrendData
+
+// Event
+@filterClicked
+
+// 데이터 구조
+{
+  peakDate: "2025/08/05",
+  series: {
+    labels: ["00", "02", "04", "06", "08", "10", "12", "14", "16", "18", "20", "22"],
+    역대픽: [1200, 1450, 950, ...],      // #526FE5
+    연중최고픽: [1050, 1250, 880, ...],  // #52BEE5
+    월픽: [550, 650, 500, ...],          // #009178
+    전일: [280, 350, 280, ...],          // #52E5C3
+    금일: [150, 200, 180, ...]           // #AAFD84
+  },
+  activeFilter: "전체"
+}
+```
+
+### Projects 폴더 구조
+
+실제 프로젝트 작업은 `example_xxx` 폴더가 아닌 `Projects` 폴더에서 진행:
+
+```
+RNBT_architecture/
+├── example_basic_01/     # 예제 (참조용)
+├── example_master_01/    # 예제 (참조용)
+├── example_master_02/    # 예제 (참조용)
+└── Projects/             # 실제 프로젝트
+    └── HANA_BANK_HIT_Dev/
+        └── page/
+            └── components/
+                └── TimeTrendChart/
 ```
 
 ---
