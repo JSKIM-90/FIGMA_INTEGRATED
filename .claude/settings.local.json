@@ -14,7 +14,9 @@
       "Bash(powershell:*)",
       "Bash(mkdir -p:*)",
       "Bash(powershell -Command \"Start-Sleep -Seconds 3\")",
-      "Bash(node -e:*)"
+      "Bash(node -e:*)",
+      "WebSearch",
+      "WebFetch(domain:echarts.apache.org)"
     ],
     "deny": [],
     "ask": []
