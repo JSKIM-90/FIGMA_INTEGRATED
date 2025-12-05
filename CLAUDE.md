@@ -516,6 +516,47 @@ function createAreaSeries(name, data, color) {
 
 **주의**: `itemStyle.color`를 명시하지 않으면 legend 아이콘 색상이 라인 색상과 다를 수 있음
 
+#### Config 주입 패턴 (차트 컴포넌트 재사용)
+
+**목적**: Line 차트면 Line용 renderData 하나로 충분하다
+
+차트 타입별로 공통 렌더 함수를 만들고, Raw API 필드를 매핑하는 key만 Config로 주입하여 재사용.
+
+```javascript
+// Config: Raw API 필드 매핑
+const config = {
+    xKey: 'tm',             // X축에 사용할 API 필드
+    seriesMap: [
+        { key: 'val_max', name: '역대픽', color: '#526FE5' },
+        { key: 'val_year', name: '연중최고픽', color: '#52BEE5' }
+    ],
+    smooth: true,
+    areaStyle: true
+};
+
+// 커링 + 바인딩
+this.renderChart = fx.curry(renderLineData)(config).bind(this);
+
+// 렌더 함수에서 Config의 key로 Raw API 데이터 추출
+function renderLineData(config, response) {
+    const { data } = response;
+    const labels = fx.go(data, fx.map(d => d[config.xKey]));
+    const series = fx.go(config.seriesMap, fx.map(s => ({
+        name: s.name,
+        data: fx.go(data, fx.map(d => d[s.key])),
+        // ...
+    })));
+}
+```
+
+**핵심 원칙**:
+- `key`: Raw API 필드명 (데이터마다 다름) → Config
+- `name`: 차트에 표시할 이름 (기획) → Config
+- `color`: 색상 (디자인) → Config
+- `type: 'line'`, `tooltip.trigger: 'axis'` → 하드코딩 (Line 차트 공통)
+
+**상세 문서**: `chart_component_config_inject.md` 참조
+
 ### Projects 폴더 구조
 
 실제 프로젝트 작업은 `example_xxx` 폴더가 아닌 `Projects` 폴더에서 진행:
