@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Figma Integrated - Project Portal</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0a1612 0%, #1a2a25 100%);
+            min-height: 100vh;
+            color: #e9ebeb;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(90deg, #86afa1, #52E5C3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 16px;
+            color: #a5b0ad;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #4d634e;
+        }
+
+        .section-title .badge {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .badge-figma {
+            background: #1e1e1e;
+            border: 1px solid #ff7262;
+            color: #ff7262;
+        }
+
+        .badge-rnbt {
+            background: #172d27;
+            border: 1px solid #86afa1;
+            color: #86afa1;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: linear-gradient(180deg, rgba(32, 44, 40, 0.8) 0%, rgba(8, 33, 25, 0.8) 100%);
+            border: 1px solid #4d634e;
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .card:hover {
+            border-color: #86afa1;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .card-type {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: #2a3d39;
+            color: #bcc4c2;
+        }
+
+        .card-description {
+            font-size: 14px;
+            color: #a5b0ad;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .card-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: #7a8583;
+        }
+
+        .card-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .workflow-section {
+            background: rgba(32, 44, 40, 0.5);
+            border: 1px solid #4d634e;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 40px;
+        }
+
+        .workflow-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #86afa1;
+        }
+
+        .workflow-steps {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .workflow-step {
+            background: #2a3d39;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .workflow-arrow {
+            color: #4d634e;
+            font-size: 18px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #7a8583;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 1px solid #4d634e;
+            color: #7a8583;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Figma Integrated</h1>
+            <p>Figma Design to Dynamic Component Workflow</p>
+        </div>
+
+        <!-- Workflow Overview -->
+        <div class="workflow-section">
+            <div class="workflow-title">End-to-End Workflow</div>
+            <div class="workflow-steps">
+                <div class="workflow-step">Figma Design</div>
+                <span class="workflow-arrow">→</span>
+                <div class="workflow-step">Figma MCP</div>
+                <span class="workflow-arrow">→</span>
+                <div class="workflow-step">Static HTML/CSS</div>
+                <span class="workflow-arrow">→</span>
+                <div class="workflow-step">Dynamic Component</div>
+                <span class="workflow-arrow">→</span>
+                <div class="workflow-step">Preview</div>
+            </div>
+        </div>
+
+        <!-- Figma Conversion Section -->
+        <div class="section">
+            <div class="section-title">
+                Figma Conversion
+                <span class="badge badge-figma">Static HTML/CSS</span>
+            </div>
+            <div class="card-grid">
+                <a href="Figma_Conversion/Conversion/HANA_BANK_HIT_Dev/time-trend-chart/time-trend-chart.html" class="card">
+                    <div class="card-header">
+                        <span class="card-title">TimeTrendChart</span>
+                        <span class="card-type">Area Chart</span>
+                    </div>
+                    <div class="card-description">
+                        시간대별 거래추이 차트 - 5개 시리즈 영역 차트 (역대픽, 연중최고픽, 월픽, 전일, 금일)
+                    </div>
+                    <div class="card-meta">
+                        <span>HANA_BANK_HIT_Dev</span>
+                        <span>831 × 350</span>
+                    </div>
+                </a>
+
+                <a href="Figma_Conversion/Conversion/HANA_BANK_HIT_Dev/performance-status/performance-status.html" class="card">
+                    <div class="card-header">
+                        <span class="card-title">PerformanceStatus</span>
+                        <span class="card-type">Status Panel</span>
+                    </div>
+                    <div class="card-description">
+                        실적 현황 패널 - 거래량, 달성률 등 주요 지표 표시
+                    </div>
+                    <div class="card-meta">
+                        <span>HANA_BANK_HIT_Dev</span>
+                    </div>
+                </a>
+
+                <a href="Figma_Conversion/Conversion/HANA_BANK_HIT_Dev/performance-status-v2/business-status.html" class="card">
+                    <div class="card-header">
+                        <span class="card-title">BusinessStatus</span>
+                        <span class="card-type">Status Panel v2</span>
+                    </div>
+                    <div class="card-description">
+                        업무 현황 패널 - 개선된 버전
+                    </div>
+                    <div class="card-meta">
+                        <span>HANA_BANK_HIT_Dev</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- RNBT Architecture Section -->
+        <div class="section">
+            <div class="section-title">
+                RNBT Architecture
+                <span class="badge badge-rnbt">Dynamic Component</span>
+            </div>
+            <div class="card-grid">
+                <a href="RNBT_architecture/Projects/HANA_BANK_HIT_Dev/page/components/TimeTrendChart/preview.html" class="card">
+                    <div class="card-header">
+                        <span class="card-title">TimeTrendChart</span>
+                        <span class="card-type">ECharts Component</span>
+                    </div>
+                    <div class="card-description">
+                        동적 시간대별 거래추이 차트 - ECharts 기반, GlobalDataPublisher 구독, 필터 이벤트 지원
+                    </div>
+                    <div class="card-meta">
+                        <span>HANA_BANK_HIT_Dev</span>
+                        <span>Topic: timeTrendData</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Sample Tests Section -->
+        <div class="section">
+            <div class="section-title">
+                Sample Tests
+                <span class="badge badge-figma">Conversion Tests</span>
+            </div>
+            <div class="card-grid">
+                <a href="Figma_Conversion/Conversion/sample_test/Echarts/chart-bar/chart-example.html" class="card">
+                    <div class="card-header">
+                        <span class="card-title">ECharts Bar</span>
+                        <span class="card-type">Chart Test</span>
+                    </div>
+                    <div class="card-description">
+                        ECharts 바 차트 변환 테스트
+                    </div>
+                    <div class="card-meta">
+                        <span>sample_test</span>
+                    </div>
+                </a>
+
+                <a href="Figma_Conversion/Conversion/sample_test/header/header.html" class="card">
+                    <div class="card-header">
+                        <span class="card-title">Header</span>
+                        <span class="card-type">Layout Test</span>
+                    </div>
+                    <div class="card-description">
+                        헤더 레이아웃 변환 테스트
+                    </div>
+                    <div class="card-meta">
+                        <span>sample_test</span>
+                    </div>
+                </a>
+
+                <a href="Figma_Conversion/Conversion/sample_test/group-left/group-left.html" class="card">
+                    <div class="card-header">
+                        <span class="card-title">Group Left</span>
+                        <span class="card-type">Layout Test</span>
+                    </div>
+                    <div class="card-description">
+                        그룹 레이아웃 변환 테스트
+                    </div>
+                    <div class="card-meta">
+                        <span>sample_test</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <footer>
+            Figma Integrated Monorepo - Figma MCP + RNBT Architecture
+        </footer>
+    </div>
+</body>
+</html>
