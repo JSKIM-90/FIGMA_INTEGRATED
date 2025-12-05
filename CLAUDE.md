@@ -476,6 +476,46 @@ timeTrendData
 }
 ```
 
+### ECharts 컴포넌트 가이드
+
+#### Legend 처리 원칙
+
+**ECharts 내장 legend 사용 권장** (HTML 하드코딩 대신)
+
+```javascript
+// ✅ 권장: ECharts legend 활성화
+legend: {
+    show: true,
+    bottom: 0,
+    itemWidth: 8,
+    itemHeight: 8,
+    itemGap: 16,
+    icon: 'circle',
+    textStyle: {
+        color: '#d2d8d6',
+        fontSize: 13,
+        fontWeight: 500
+    }
+}
+
+// ✅ series에 itemStyle.color 명시 (legend 아이콘 색상 매칭)
+function createAreaSeries(name, data, color) {
+    return {
+        name: name,
+        itemStyle: { color: color },  // legend 아이콘 색상
+        lineStyle: { color: color },
+        // ...
+    };
+}
+```
+
+**장점**:
+- 클릭 시 시리즈 토글 기능 자동 지원
+- 데이터 기반 동적 렌더링
+- 색상 자동 매칭 (`itemStyle.color` 사용)
+
+**주의**: `itemStyle.color`를 명시하지 않으면 legend 아이콘 색상이 라인 색상과 다를 수 있음
+
 ### Projects 폴더 구조
 
 실제 프로젝트 작업은 `example_xxx` 폴더가 아닌 `Projects` 폴더에서 진행:
