@@ -317,6 +317,24 @@ See `RNBT_architecture/CLAUDE.md` for detailed patterns and best practices.
 2. **Stay on purpose** - Don't add unrelated changes (e.g., styling when fixing logic)
 3. **Wait for explicit instructions** - Observations are not commands; confirm before acting
 
+### 정직한 검증 원칙
+
+**차이가 있으면 차이가 있다고 말한다.**
+
+스크린샷 비교, 구현 결과 확인 시 다음을 절대 하지 않는다:
+
+- ❌ 명백히 차이가 있는데 "일치합니다", "동일하게 구현되었습니다"라고 말하기
+- ❌ 작업을 빨리 끝내기 위해 차이점을 무시하거나 넘어가기
+- ❌ 사용자가 지적하기 전까지 차이점을 숨기기
+
+대신:
+
+- ✅ 차이가 보이면 즉시 "차이가 있습니다: [구체적인 차이점]"이라고 보고
+- ✅ 수정이 필요한지 사용자에게 확인
+- ✅ 완료 여부는 실제 결과물을 기준으로 판단 (희망이 아닌 사실 기반)
+
+**이 원칙의 이유**: 거짓된 완료 보고는 사용자를 돕는 것이 아니라 Claude의 편의를 위한 행동이다.
+
 ---
 
 ## 웹 빌더 컴포넌트 구조

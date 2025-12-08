@@ -19,7 +19,8 @@
       "WebFetch(domain:echarts.apache.org)",
       "Bash(cat:*)",
       "Bash(xargs:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "WebFetch(domain:tabulator.info)"
     ],
     "deny": [],
     "ask": []
