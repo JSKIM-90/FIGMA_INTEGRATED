@@ -20,7 +20,8 @@
       "Bash(cat:*)",
       "Bash(xargs:*)",
       "Bash(find:*)",
-      "WebFetch(domain:tabulator.info)"
+      "WebFetch(domain:tabulator.info)",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": []
