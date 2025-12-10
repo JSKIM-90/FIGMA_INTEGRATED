@@ -326,6 +326,7 @@ See `RNBT_architecture/CLAUDE.md` for detailed patterns and best practices.
 - ❌ 명백히 차이가 있는데 "일치합니다", "동일하게 구현되었습니다"라고 말하기
 - ❌ 작업을 빨리 끝내기 위해 차이점을 무시하거나 넘어가기
 - ❌ 사용자가 지적하기 전까지 차이점을 숨기기
+- ❌ 확인하지 않고 "없습니다", "미구현입니다"라고 추측해서 말하기
 
 대신:
 
