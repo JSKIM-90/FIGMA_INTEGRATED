@@ -397,6 +397,69 @@ See `RNBT_architecture/CLAUDE.md` for detailed patterns and best practices.
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
+### 컨테이너 스타일 구조 (Layout vs Visual)
+
+컨테이너 선택자에 적용되는 스타일은 두 가지로 구분:
+
+```css
+#component-container {
+    /* Layout (from CONTAINER_STYLES.md) */
+    width: 100% !important;
+    height: calc(100vh - 100px) !important;
+    padding: 20px !important;
+    overflow: auto !important;
+
+    /* Visual */
+    background: #1a1f2e;
+    color: #e0e6ed;
+    font-family: 'Segoe UI', sans-serif;
+}
+```
+
+| 구분 | 역할 | 속성 | !important |
+|------|------|------|------------|
+| **Layout** | 크기/배치 | width, height, padding, overflow | ✓ 사용 |
+| **Visual** | 테마/스타일 | background, color, font-family | 사용 안 함 |
+
+**!important 사용 이유**:
+- component.css에 기본 컨테이너 크기가 포함되어 있을 수 있음
+- CONTAINER_STYLES.md의 레이아웃 값이 이를 덮어써야 함
+- 나중에 component.css에서 Layout 속성을 제거하면 !important도 제거
+
+### 팝업 컴포넌트의 컨테이너 처리
+
+```
+일반 컴포넌트:
+┌─────────────────────────────────────────────────────────────────────┐
+│  Page                                                                │
+│  └── #component-container (width/height 필요)                       │
+│       └── 내부 요소들                                                │
+└─────────────────────────────────────────────────────────────────────┘
+
+팝업 컴포넌트:
+┌─────────────────────────────────────────────────────────────────────┐
+│  Page                                                                │
+│  └── #popup-container (width: auto, height: auto)                   │
+│       └── .popup-overlay (position: fixed, 100vw × 100vh)           │
+│            └── .popup-content                                        │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+| 컴포넌트 유형 | 컨테이너 크기 | 이유 |
+|-------------|-------------|------|
+| 일반 (카드, 테이블, 차트) | **명시 필수** | 내부 요소가 컨테이너 기준으로 배치 |
+| 팝업 (모달, 토스트) | **auto 가능** | fixed 요소는 viewport 기준 |
+
+```css
+/* 팝업 컴포넌트 컨테이너 */
+#popup-container {
+    width: auto !important;
+    height: auto !important;
+    padding: 0 !important;
+    overflow: visible !important;
+}
+```
+
 ### Error Handling
 
 - Use **Guard Clauses** for internal logic
