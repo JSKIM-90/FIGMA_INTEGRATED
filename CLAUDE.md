@@ -305,7 +305,7 @@ Page: before_load → [Component register] → loaded → [User Interaction] →
 - **example_master_01**: Master + Page architecture (dashboard with shared header/sidebar)
 - **example_master_02**: Extended Master + Page pattern
 
-See `RNBT_architecture/CLAUDE.md` for detailed patterns and best practices.
+See `RNBT_architecture/README.md` for detailed patterns and best practices.
 
 ---
 
