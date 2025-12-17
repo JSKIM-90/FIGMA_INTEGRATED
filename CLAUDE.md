@@ -265,11 +265,11 @@ Runtime framework for the visual web builder with functional programming pattern
 ### Commands
 
 ```bash
-cd RNBT_architecture/example_basic_01/mock_server
+cd RNBT_architecture/Examples/example_basic_01/mock_server
 npm install
 npm start  # Runs on port 3000
 
-cd RNBT_architecture/example_master_01/mock_server
+cd RNBT_architecture/Examples/example_master_01/mock_server
 npm install
 npm start  # Runs on port 3001
 ```
@@ -637,18 +637,19 @@ function renderLineData(config, response) {
 - `color`: 색상 (디자인) → Config
 - `type: 'line'`, `tooltip.trigger: 'axis'` → 하드코딩 (Line 차트 공통)
 
-**상세 문서**: `chart_component_config_inject.md` 참조
+**상세 문서**: `Document/Chart_Config_Inject.md` 참조
 
 ### Projects 폴더 구조
 
-실제 프로젝트 작업은 `example_xxx` 폴더가 아닌 `Projects` 폴더에서 진행:
+실제 프로젝트 작업은 `Examples/` 폴더가 아닌 `Projects` 폴더에서 진행:
 
 ```
 RNBT_architecture/
-├── example_basic_01/     # 예제 (참조용)
-├── example_master_01/    # 예제 (참조용)
-├── example_master_02/    # 예제 (참조용)
-└── Projects/             # 실제 프로젝트
+├── Examples/
+│   ├── example_basic_01/     # 예제 (참조용)
+│   ├── example_master_01/    # 예제 (참조용)
+│   └── example_master_02/    # 예제 (참조용)
+└── Projects/                 # 실제 프로젝트
     └── HANA_BANK_HIT_Dev/
         └── page/
             └── components/
@@ -663,31 +664,36 @@ RNBT_architecture/
 
 ```
 Figma_Conversion/
-└── [ProjectName]/
-    └── [ComponentName]/
-        ├── assets/              # SVG, images
-        ├── component.html       # Static HTML
-        └── component.css        # Pure CSS
+└── Conversion/
+    └── [ProjectName]/
+        └── [ComponentName]/
+            ├── assets/              # SVG, images
+            ├── screenshots/         # Playwright 검증
+            ├── [name].html          # Static HTML
+            └── [name].css           # Pure CSS
 ```
 
 ### RNBT_architecture Component
 
 ```
 RNBT_architecture/
-└── example_xxx/
-    ├── CONTAINER_STYLES.md      # Container sizes (after layout)
-    ├── datasetList.json         # API mappings
-    ├── mock_server/             # Mock API
-    └── page/
-        ├── page_scripts/
-        │   ├── before_load.js
-        │   ├── loaded.js
-        │   └── before_unload.js
-        └── components/
-            └── [ComponentName]/
-                ├── views/component.html    # With template
-                ├── styles/component.css
-                ├── scripts/register.js
-                ├── scripts/destroy.js
-                └── preview.html
+├── Examples/
+│   └── example_xxx/
+│       ├── CONTAINER_STYLES.md      # Container sizes (after layout)
+│       ├── datasetList.json         # API mappings
+│       ├── mock_server/             # Mock API
+│       └── page/
+│           ├── page_scripts/
+│           │   ├── before_load.js
+│           │   ├── loaded.js
+│           │   └── before_unload.js
+│           └── components/
+│               └── [ComponentName]/
+│                   ├── views/component.html    # With template
+│                   ├── styles/component.css
+│                   ├── scripts/register.js
+│                   ├── scripts/destroy.js
+│                   └── preview.html
+└── Projects/
+    └── [ProjectName]/              # 실제 프로젝트 (동일 구조)
 ```
