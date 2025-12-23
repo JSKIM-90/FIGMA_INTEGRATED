@@ -81,7 +81,10 @@ Figma Design → Figma MCP → Static HTML/CSS → Dynamic Component → Preview
 
 ### Agent Skills 관점
 
-이 저장소는 [Claude Agent Skills](https://platform.claude.com/docs/ko/agents-and-tools/agent-skills/overview) 아키텍처와 유사한 구조를 가집니다.
+> **Agent Skills**는 Claude의 기능을 확장하는 모듈식 기능입니다. 각 Skill은 지침, 메타데이터 및 선택적 리소스(스크립트, 템플릿)를 패키징하며, Claude는 관련이 있을 때 자동으로 이를 사용합니다.
+> — [Claude Agent Skills](https://platform.claude.com/docs/ko/agents-and-tools/agent-skills/overview)
+
+이 저장소는 Agent Skills 아키텍처와 유사한 구조를 가집니다.
 
 | Agent Skills | FIGMA_INTEGRATED |
 |--------------|------------------|
