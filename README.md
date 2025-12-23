@@ -153,6 +153,19 @@ npm start  # port 3000
 
 ---
 
+## 2026년 방향
+
+2025년에 컴포넌트 생산 프로세스를 확립했다면, 2026년은 **확장과 안정화**입니다.
+
+- **Template 사전 생산**: 재사용 가능한 Template 라이브러리 구축
+- **Template Managing System**: 생산된 Template의 체계적 관리
+- **코드베이스 안정화**: 확장성을 위한 기반 정비
+- **Spring 6 업그레이드**: 백엔드 프레임워크 현대화
+
+상세 내용: [discussions/ROADMAP_2026.md](discussions/ROADMAP_2026.md)
+
+---
+
 ## 관련 링크
 
 - [FIGMA_INTEGRATED](https://github.com/JSKIM-90/FIGMA_INTEGRATED) - 이 저장소
