@@ -79,6 +79,18 @@ RENOBIT을 활용하는 파트너라면 누구나 봐야 할 문서:
 Figma Design → Figma MCP → Static HTML/CSS → Dynamic Component → Preview
 ```
 
+### Agent Skills 관점
+
+이 저장소는 [Claude Agent Skills](https://platform.claude.com/docs/ko/agents-and-tools/agent-skills/overview) 아키텍처와 유사한 구조를 가집니다.
+
+| Agent Skills | FIGMA_INTEGRATED |
+|--------------|------------------|
+| SKILL.md (메타데이터) | README.md (진입점) |
+| 지침 (워크플로우) | CLAUDE.md (작업 규칙) |
+| 리소스 (코드, 참조) | 서브모듈 (Figma_Conversion, RNBT_architecture) |
+
+**점진적 공개**: Claude는 필요할 때만 서브모듈의 상세 문서를 로드하여 컨텍스트를 효율적으로 사용합니다.
+
 ---
 
 ## Phase 1: Design to Static HTML/CSS
