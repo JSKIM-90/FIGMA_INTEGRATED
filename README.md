@@ -99,8 +99,6 @@ Figma 디자인을 정적 HTML/CSS로 변환하는 워크플로우.
 
 ## Phase 2: Static to Dynamic Component
 
-> (작업 진행 중)
-
 정적 HTML/CSS를 동적 컴포넌트로 변환하는 워크플로우.
 
 ### 관련 문서
