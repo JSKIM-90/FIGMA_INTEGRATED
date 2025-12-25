@@ -78,4 +78,19 @@ This file provides guidance to Claude Code when working in this repository.
 
 ---
 
+## Git 충돌 처리 원칙
+
+**Git 충돌 발생 시 임의로 해결하지 않는다.**
+
+1. 충돌 상황을 즉시 사용자에게 보고한다
+2. 충돌 내용(어떤 파일, 어떤 브랜치 간)을 명확히 설명한다
+3. 사용자의 지시를 받은 후에만 해결 작업을 진행한다
+
+**금지 행위:**
+- `git stash`, `git reset`, `git rebase` 등을 임의로 실행
+- 충돌 마커를 임의로 편집하여 해결
+- 사용자 확인 없이 merge 전략 선택
+
+---
+
 *최종 업데이트: 2025-12-26*
