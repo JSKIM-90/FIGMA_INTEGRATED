@@ -47,9 +47,6 @@ This file provides guidance to Claude Code when working in this repository.
 
 - **작업 지침**: `RNBT_architecture/CLAUDE.md`
 - **설계 문서**: `RNBT_architecture/README.md`
-- **컴포넌트 구조**: `RNBT_architecture/Analysis/RUNTIME_COMPONENT_STRUCTURE.md`
-- **Default JS 템플릿**: `RNBT_architecture/Analysis/DEFAULT_JS.md`
-- **프로젝트 템플릿**: `RNBT_architecture/Analysis/PROJECT_TEMPLATE.md`
 
 ---
 
@@ -63,4 +60,22 @@ This file provides guidance to Claude Code when working in this repository.
 
 ---
 
-*최종 업데이트: 2025-12-19*
+## 답변 전 필수 확인 규칙
+
+**외부 용어/개념/도구에 대해 답변할 때:**
+
+1. 공식 문서나 신뢰할 수 있는 출처를 먼저 확인한다
+2. 확인 없이는 해석하지 않는다
+3. 확인할 수 없으면 "모른다"고 말한다
+
+**위반 징후:**
+- "~일 것이다", "~로 보인다" 같은 추측성 표현
+- 출처 없이 정의를 내리는 경우
+- 사용자가 언급한 용어를 임의로 재해석하는 경우
+
+**올바른 패턴:**
+"[용어]가 정확히 무엇인지 확인해보겠습니다" → 확인 → 답변
+
+---
+
+*최종 업데이트: 2025-12-26*
