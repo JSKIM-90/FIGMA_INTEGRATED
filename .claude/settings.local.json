@@ -23,7 +23,8 @@
       "WebFetch(domain:tabulator.info)",
       "Bash(done)",
       "Bash(netstat:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\ndocs: README.md 및 Agent Skill 분석 문서 추가\n\n- README.md: 프로젝트 사용 가이드 \\(사전 준비, 워크플로우, 문제 해결\\)\n- discussions/2025-12-26_agent_skill_analysis.md: Agent Skill 변환 가능성 분석\n- CLAUDE.md: 답변 전 필수 확인 규칙 추가 \\(외부 용어 검증\\)\n- 서브모듈 업데이트 \\(Figma_Conversion, RNBT_architecture\\)\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
     ],
     "deny": [],
     "ask": []
