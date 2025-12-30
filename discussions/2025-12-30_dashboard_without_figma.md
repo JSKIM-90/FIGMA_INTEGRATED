@@ -217,6 +217,146 @@ API 엔드포인트가 바뀌면 `datasetName`만 수정 (Mock Server의 routes�
 
 ---
 
+## 컴포넌트 단계에서 register.js / beforeDestroy.js 작성
+
+API가 미정이어도 컴포넌트의 스크립트는 미리 완성할 수 있습니다.
+
+### register.js 템플릿
+
+```javascript
+/**
+ * SensorCard - register.js
+ * API 미정 상태에서도 완성 가능한 구조
+ */
+
+// ======================
+// CONFIG (API 확정 시 수정)
+// ======================
+this.dataBindConfig = [
+    { key: 'temperature', selector: '.temp', suffix: '°C' },
+    { key: 'humidity', selector: '.humidity', suffix: '%' },
+    { key: 'status', selector: '.status', dataAttr: 'status' }
+];
+
+this.datasetInfo = [
+    { datasetName: 'sensorData', param: {}, render: ['renderData'] }
+];
+
+// ======================
+// RENDER METHODS (완성)
+// ======================
+this.renderData = function(data) {
+    this.dataBindConfig.forEach(({ key, selector, suffix, dataAttr }) => {
+        const el = this.element.querySelector(selector);
+        if (el) {
+            el.textContent = data[key] + (suffix || '');
+            if (dataAttr) el.dataset[dataAttr] = data[key];
+        }
+    });
+};
+
+// ======================
+// SUBSCRIPTION (API 확정 후 활성화)
+// ======================
+// const { GlobalDataPublisher } = WKit;
+// this.subscription = GlobalDataPublisher.subscribe('sensorData', (response) => {
+//     this.renderData(response.data);
+// });
+
+console.log('[SensorCard] Registered:', this.id);
+```
+
+### beforeDestroy.js 템플릿
+
+```javascript
+/**
+ * SensorCard - beforeDestroy.js
+ * 구독 해제 로직 미리 작성
+ */
+
+// 구독 해제 (API 연동 후 활성화)
+if (this.subscription) {
+    this.subscription.unsubscribe();
+    this.subscription = null;
+}
+
+console.log('[SensorCard] Destroyed:', this.id);
+```
+
+### 차트 컴포넌트 예시
+
+```javascript
+// TrendChart/scripts/register.js
+
+// ======================
+// CONFIG
+// ======================
+this.chartConfig = {
+    xKey: 'timestamps',
+    series: [
+        { yKey: 'values', name: 'Value', color: '#3b82f6' }
+    ]
+};
+
+// ======================
+// CHART SETUP (완성)
+// ======================
+this.chart = echarts.init(this.element.querySelector('.chart-container'));
+
+this.renderChart = function(data) {
+    const { xKey, series } = this.chartConfig;
+    const option = {
+        xAxis: { type: 'category', data: data[xKey] },
+        yAxis: { type: 'value' },
+        series: series.map(s => ({
+            name: s.name,
+            type: 'line',
+            data: data[s.yKey],
+            lineStyle: { color: s.color }
+        }))
+    };
+    this.chart.setOption(option);
+};
+
+// ======================
+// SUBSCRIPTION (API 확정 후 활성화)
+// ======================
+// this.subscription = GlobalDataPublisher.subscribe('chartData', (response) => {
+//     this.renderChart(response.data);
+// });
+
+console.log('[TrendChart] Registered:', this.id);
+```
+
+```javascript
+// TrendChart/scripts/beforeDestroy.js
+
+if (this.chart) {
+    this.chart.dispose();
+    this.chart = null;
+}
+
+if (this.subscription) {
+    this.subscription.unsubscribe();
+    this.subscription = null;
+}
+
+console.log('[TrendChart] Destroyed:', this.id);
+```
+
+### 컴포넌트 완성도
+
+| 항목 | API 미정 | API 확정 후 |
+|------|---------|------------|
+| register.js | ✓ 완성 (구독 주석) | 주석 해제 |
+| beforeDestroy.js | ✓ 완성 | 변경 없음 |
+| preview.html | ✓ Mock으로 테스트 | 변경 없음 |
+| config | 임시 필드명 | 실제 필드명으로 수정 |
+
+**핵심**: 구독 로직만 주석 처리하면 나머지는 완전히 동작하는 코드입니다.
+
+---
+
 ## 실제 예시: 센서 모니터링 대시보드
 
 ### Step 1: 개별 컴포넌트 개발 (API 없이)
