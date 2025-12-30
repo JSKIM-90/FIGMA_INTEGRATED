@@ -229,6 +229,8 @@ API가 미정이어도 컴포넌트의 스크립트는 미리 완성할 수 있�
  * API 미정 상태에서도 완성 가능한 구조
  */
 
+const { GlobalDataPublisher, WEventBus } = WKit;
+
 // ======================
 // CONFIG (API 확정 시 수정)
 // ======================
@@ -241,6 +243,14 @@ this.dataBindConfig = [
 this.datasetInfo = [
     { datasetName: 'sensorData', param: {}, render: ['renderData'] }
 ];
+
+// ======================
+// CUSTOM EVENTS (완성)
+// ======================
+this.customEvents = {
+    click: '@sensorCardClicked',
+    dblclick: '@sensorCardDblClicked'
+};
 
 // ======================
 // RENDER METHODS (완성)
@@ -256,12 +266,24 @@ this.renderData = function(data) {
 };
 
 // ======================
-// SUBSCRIPTION (API 확정 후 활성화)
+// EVENT BINDINGS (완성)
 // ======================
-// const { GlobalDataPublisher } = WKit;
-// this.subscription = GlobalDataPublisher.subscribe('sensorData', (response) => {
-//     this.renderData(response.data);
-// });
+Object.entries(this.customEvents).forEach(([eventType, eventName]) => {
+    this.element.addEventListener(eventType, (e) => {
+        WEventBus.emit(eventName, { targetInstance: this, event: e });
+    });
+});
+
+// ======================
+// SUBSCRIPTION (구독 패턴)
+// ======================
+this.subscriptions = [];
+
+this.subscriptions.push(
+    GlobalDataPublisher.subscribe('sensorData', (response) => {
+        this.renderData(response.data);
+    })
+);
 
 console.log('[SensorCard] Registered:', this.id);
 ```
@@ -271,13 +293,13 @@ console.log('[SensorCard] Registered:', this.id);
 ```javascript
 /**
  * SensorCard - beforeDestroy.js
- * 구독 해제 로직 미리 작성
+ * 구독 해제 + 이벤트 정리
  */
 
-// 구독 해제 (API 연동 후 활성화)
-if (this.subscription) {
-    this.subscription.unsubscribe();
-    this.subscription = null;
+// 구독 해제 (배열 패턴)
+if (this.subscriptions) {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions = [];
 }
 
 console.log('[SensorCard] Destroyed:', this.id);
@@ -287,6 +309,8 @@ console.log('[SensorCard] Destroyed:', this.id);
 
 ```javascript
 // TrendChart/scripts/register.js
+
+const { GlobalDataPublisher } = WKit;
 
 // ======================
 // CONFIG
@@ -319,11 +343,15 @@ this.renderChart = function(data) {
 };
 
 // ======================
-// SUBSCRIPTION (API 확정 후 활성화)
+// SUBSCRIPTION (구독 패턴)
 // ======================
-// this.subscription = GlobalDataPublisher.subscribe('chartData', (response) => {
-//     this.renderChart(response.data);
-// });
+this.subscriptions = [];
+
+this.subscriptions.push(
+    GlobalDataPublisher.subscribe('chartData', (response) => {
+        this.renderChart(response.data);
+    })
+);
 
 console.log('[TrendChart] Registered:', this.id);
 ```
@@ -331,14 +359,16 @@ console.log('[TrendChart] Registered:', this.id);
 ```javascript
 // TrendChart/scripts/beforeDestroy.js
 
+// 차트 정리
 if (this.chart) {
     this.chart.dispose();
     this.chart = null;
 }
 
-if (this.subscription) {
-    this.subscription.unsubscribe();
-    this.subscription = null;
+// 구독 해제
+if (this.subscriptions) {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions = [];
 }
 
 console.log('[TrendChart] Destroyed:', this.id);
@@ -348,12 +378,44 @@ console.log('[TrendChart] Destroyed:', this.id);
 
 | 항목 | API 미정 | API 확정 후 |
 |------|---------|------------|
-| register.js | ✓ 완성 (구독 주석) | 주석 해제 |
+| register.js | ✓ 완성 | config만 수정 |
 | beforeDestroy.js | ✓ 완성 | 변경 없음 |
 | preview.html | ✓ Mock으로 테스트 | 변경 없음 |
-| config | 임시 필드명 | 실제 필드명으로 수정 |
+| customEvents | ✓ 완성 | 변경 없음 |
+| subscriptions | ✓ 완성 (topic명만 수정) | topic명 확정 |
 
-**핵심**: 구독 로직만 주석 처리하면 나머지는 완전히 동작하는 코드입니다.
+### 구독 패턴 규칙
+
+```javascript
+// ✓ DO: 배열로 관리
+this.subscriptions = [];
+this.subscriptions.push(GlobalDataPublisher.subscribe('topic1', cb1));
+this.subscriptions.push(GlobalDataPublisher.subscribe('topic2', cb2));
+
+// ✓ DO: 일괄 해제
+this.subscriptions.forEach(sub => sub.unsubscribe());
+
+// ✗ DON'T: 개별 변수로 관리
+this.sub1 = GlobalDataPublisher.subscribe('topic1', cb1);
+this.sub2 = GlobalDataPublisher.subscribe('topic2', cb2);
+```
+
+### 이벤트 정의 규칙
+
+```javascript
+// ✓ DO: customEvents 객체로 정의
+this.customEvents = {
+    click: '@componentClicked',
+    dblclick: '@componentDblClicked'
+};
+
+// ✓ DO: 일괄 바인딩
+Object.entries(this.customEvents).forEach(([eventType, eventName]) => {
+    this.element.addEventListener(eventType, (e) => {
+        WEventBus.emit(eventName, { targetInstance: this, event: e });
+    });
+});
+```
 
 ---
 
