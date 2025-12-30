@@ -158,7 +158,7 @@ TemperatureSensor/
 ├── TemperatureSensor.html
 ├── TemperatureSensor.css
 ├── register.js          # Mixin 적용, 이벤트 바인딩 템플릿
-├── destroy.js           # 정리 템플릿
+├── beforeDestroy.js     # 정리 템플릿
 └── tb_package.json      # 메타데이터
 ```
 

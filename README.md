@@ -162,7 +162,7 @@ Figma_Conversion/Conversion/[프로젝트명]/[컴포넌트명]/
 ### Step 2: 정적 → 동적 컴포넌트
 
 1. 정적 HTML/CSS를 RNBT_architecture로 이동
-2. 스크립트 추가 (register.js, destroy.js)
+2. 스크립트 추가 (register.js, beforeDestroy.js)
 3. 런타임 구성
 
 > **참고**: 동적 컴포넌트는 페이지가 오케스트레이션합니다. 컴포넌트 외에 **페이지 스크립트**(before_load, loaded, before_unload)와 **Mock Server** 작업이 필요할 수 있습니다. 자세한 내용은 `RNBT_architecture/README.md`를 참조하세요.
@@ -179,7 +179,7 @@ RNBT_architecture/Projects/[프로젝트명]/page/components/[컴포넌트명]/
 ├── [컴포넌트명].html
 ├── [컴포넌트명].css
 ├── register.js             # 컴포넌트 등록 스크립트
-├── destroy.js              # 컴포넌트 정리 스크립트
+├── beforeDestroy.js        # 컴포넌트 정리 스크립트
 └── preview.html            # 미리보기 (서버 없이 브라우저에서 직접 확인 가능)
 ```
 

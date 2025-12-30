@@ -26,7 +26,7 @@ RNBT_architecture/Projects/[프로젝트명]/page/components/[ComponentName]/
 ├── styles/component.css      # 스타일 (Figma CSS 기반)
 ├── scripts/
 │   ├── register.js           # 초기화 + 메서드 정의
-│   └── destroy.js            # 정리
+│   └── beforeDestroy.js      # 정리
 └── preview.html              # 독립 테스트
 ```
 
@@ -75,7 +75,7 @@ function initComponent() {
 }
 ```
 
-### 4. destroy.js 작성
+### 4. beforeDestroy.js 작성
 
 ```javascript
 function onInstanceUnLoad() {
@@ -94,7 +94,7 @@ function onInstanceUnLoad() {
 // 구독
 this.subscription = GlobalDataPublisher.subscribe('topic', callback);
 
-// 구독 해제 (destroy.js에서)
+// 구독 해제 (beforeDestroy.js에서)
 this.subscription.unsubscribe();
 ```
 
@@ -150,7 +150,7 @@ this.datasetInfo = [
 - [ ] 정적 HTML 구조 분석 완료
 - [ ] data-bind 속성 추가
 - [ ] register.js 구독 패턴 구현
-- [ ] destroy.js 정리 로직 구현
+- [ ] beforeDestroy.js 정리 로직 구현
 - [ ] preview.html 독립 테스트 작성
 - [ ] Mock 데이터로 렌더링 확인
 
