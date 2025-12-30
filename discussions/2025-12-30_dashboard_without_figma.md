@@ -129,6 +129,94 @@ Projects/[프로젝트]/
 
 ---
 
+## Config 패턴: API 미정 상태 대응
+
+API가 결정되지 않은 상태에서 config 패턴을 도입하면, 나중에 API가 확정되었을 때 **코드 수정 없이 config만 변경**하면 됩니다.
+
+### 데이터 바인딩 Config
+
+```javascript
+// register.js
+this.dataBindConfig = [
+    { key: 'temperature', selector: '.temp', suffix: '°C' },
+    { key: 'humidity', selector: '.humidity', suffix: '%' },
+    { key: 'status', selector: '.status', dataAttr: 'status' }
+];
+
+this.renderData = function(data) {
+    this.dataBindConfig.forEach(({ key, selector, suffix, dataAttr }) => {
+        const el = this.element.querySelector(selector);
+        if (el) {
+            el.textContent = data[key] + (suffix || '');
+            if (dataAttr) el.dataset[dataAttr] = data[key];
+        }
+    });
+};
+```
+
+API 응답 필드명이 바뀌면 config만 수정:
+
+```javascript
+// 변경 전: { temperature: 24.5 }
+// 변경 후: { temp_value: 24.5 }
+
+this.dataBindConfig = [
+    { key: 'temp_value', selector: '.temp', suffix: '°C' },  // key만 변경
+    // ...
+];
+```
+
+### 차트 Config
+
+```javascript
+this.chartConfig = {
+    xKey: 'timestamps',           // API 응답의 x축 필드명
+    series: [
+        { yKey: 'temperatures', name: '온도', color: '#3b82f6' },
+        { yKey: 'humidities', name: '습도', color: '#22c55e' }
+    ]
+};
+
+this.renderChart = function(data) {
+    const option = buildChartOption(this.chartConfig, data);
+    this.chart.setOption(option);
+};
+```
+
+API 필드명이 `temperatures` → `temp_history`로 바뀌면:
+
+```javascript
+this.chartConfig = {
+    xKey: 'time_labels',
+    series: [
+        { yKey: 'temp_history', name: '온도', color: '#3b82f6' },  // yKey만 변경
+        // ...
+    ]
+};
+```
+
+### 데이터셋 Config
+
+```javascript
+this.datasetInfo = [
+    { datasetName: 'sensor', param: { id: assetId }, render: ['renderData'] },
+    { datasetName: 'sensorHistory', param: { id: assetId }, render: ['renderChart'] }
+];
+```
+
+API 엔드포인트가 바뀌면 `datasetName`만 수정 (Mock Server의 routes에서 매핑).
+
+### Config 패턴의 장점
+
+| 변경 사항 | 코드 수정 | Config 수정 |
+|-----------|----------|-------------|
+| API 필드명 변경 | ✗ | ✓ (key만 수정) |
+| 표시 형식 변경 | ✗ | ✓ (suffix, format 수정) |
+| 차트 시리즈 추가 | ✗ | ✓ (series 배열에 추가) |
+| 색상 변경 | ✗ | ✓ (color 수정) |
+
+---
+
 ## 실제 예시: 센서 모니터링 대시보드
 
 ### Step 1: 개별 컴포넌트 개발 (API 없이)
