@@ -108,6 +108,10 @@ RNBT_architecture/Projects/[프로젝트명]/page/components/[ComponentName]/
 
 컴포넌트 코드는 가능한 **fx.js**를 활용하여 함수형으로 작성합니다.
 
+### 사용 전 필수 확인
+
+**확실하지 않으면 추측하지 말고, 먼저 확인하거나 의논합니다.**
+
 ### 기본 함수
 
 | 함수 | 용도 | 예시 |
