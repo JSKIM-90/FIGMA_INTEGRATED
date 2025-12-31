@@ -133,10 +133,37 @@ Figma_Conversion/Conversion/
 
 **규칙:**
 - 컨테이너 크기 = Figma 선택 요소 크기 (metadata에서 확인)
-- `overflow: auto` 추가 (동적 렌더링 대응)
 - Figma 스타일 그대로 유지 (임의로 100%로 변경 금지)
 
-### 4. box-sizing 주의사항
+### 4. overflow 적용 규칙
+
+**핵심 원칙:** 동적 데이터가 렌더링되는 영역을 파악하여 적절한 위치에 overflow 적용
+
+**동적 데이터 영역 식별:**
+- 테이블의 목록 (list, tbody)
+- 카드 목록 (card-list, grid)
+- 반복 렌더링되는 아이템 컨테이너
+
+```css
+/* 케이스 1: 내부 목록만 스크롤 */
+.component-container {
+  overflow: hidden;
+}
+.component__list {
+  overflow-y: auto;
+}
+
+/* 케이스 2: 전체 컨테이너 스크롤 (컨테이너 자체가 동적 영역일 때) */
+.component-container {
+  overflow: auto;
+}
+```
+
+**판단 기준:**
+- 컨테이너 내에 고정 헤더/푸터가 있고 목록만 스크롤 → 목록에 overflow
+- 컨테이너 전체가 스크롤 대상 → 컨테이너에 overflow
+
+### 5. box-sizing 주의사항
 
 ```css
 /* ❌ height 없으면 border가 별도 추가됨 */
