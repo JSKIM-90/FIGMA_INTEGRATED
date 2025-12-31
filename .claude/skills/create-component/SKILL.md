@@ -717,29 +717,9 @@ console.log('[ComponentName] Destroyed');
 | **Tabulator** | 테이블 | `new Tabulator(selector, options)` | `.destroy()` |
 | **ResizeObserver** | 리사이즈 감지 | `new ResizeObserver(callback)` | `.disconnect()` |
 
-### Tabulator height: 100% 사용 시 주의
+### Tabulator height: 100%
 
-Tabulator에서 `height: '100%'`가 작동하려면 부모 컨테이너가 **명시적 높이**를 가져야 합니다.
-
-**문제**: `position: absolute` + `top/bottom`으로 계산된 높이는 자식의 퍼센트 계산에 전달되지 않음
-
-**해결**: flexbox 레이아웃 사용
-```css
-/* 부모 컨테이너 */
-.component {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-
-/* 테이블 컨테이너 */
-.table-container {
-    flex: 1;
-    min-height: 0;  /* flexbox에서 overflow 스크롤 작동에 필요 */
-}
-```
-
-`min-height: 0`은 flexbox 자식이 부모를 넘어서 overflow될 때 스크롤이 작동하도록 합니다.
+`height: '100%'`가 작동하려면 부모가 flexbox 레이아웃이어야 합니다. (CSS 레이아웃 원칙 참고)
 
 ---
 
