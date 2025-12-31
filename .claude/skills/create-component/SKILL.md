@@ -104,13 +104,33 @@ RNBT_architecture/Projects/[프로젝트명]/page/components/[ComponentName]/
 
 ---
 
-## fx.js 함수형 프로그래밍
-
-컴포넌트 코드는 가능한 **fx.js**를 활용하여 함수형으로 작성합니다.
+## 작업 원칙
 
 ### 사용 전 필수 확인
 
 **확실하지 않으면 추측하지 말고, 먼저 확인하거나 의논합니다.**
+
+### 문제 해결 원칙
+
+**문제가 발생하면 원인을 파악하는 것이 우선입니다.** 원인을 모르면서 이전 상태로 돌아가는 것은 해결이 아닙니다.
+
+### 임시방편 금지 원칙
+
+**`!important`나 임시방편은 근본 해결이 아닙니다.** 문제의 원인을 파악하고 구조적으로 해결해야 합니다.
+
+### 스크린샷 검증 원칙
+
+**스크린샷을 꼼꼼히 확인합니다.** 대충 보고 "정상"이라고 판단하거나, 사용자 반응에 맞춰 없는 문제를 지어내면 안 됩니다.
+
+### 단계별 확인 원칙
+
+**서두르지 말고 한 단계씩 확인합니다.** 변경 후 바로 다음 작업으로 넘어가지 않고, 결과를 확인한 뒤 진행합니다.
+
+---
+
+## fx.js 함수형 프로그래밍
+
+컴포넌트 코드는 가능한 **fx.js**를 활용하여 함수형으로 작성합니다.
 
 ### 기본 함수
 
@@ -661,6 +681,30 @@ console.log('[ComponentName] Destroyed');
 | **ECharts** | 차트 | `echarts.init(container)` | `.dispose()` |
 | **Tabulator** | 테이블 | `new Tabulator(selector, options)` | `.destroy()` |
 | **ResizeObserver** | 리사이즈 감지 | `new ResizeObserver(callback)` | `.disconnect()` |
+
+### Tabulator height: 100% 사용 시 주의
+
+Tabulator에서 `height: '100%'`가 작동하려면 부모 컨테이너가 **명시적 높이**를 가져야 합니다.
+
+**문제**: `position: absolute` + `top/bottom`으로 계산된 높이는 자식의 퍼센트 계산에 전달되지 않음
+
+**해결**: flexbox 레이아웃 사용
+```css
+/* 부모 컨테이너 */
+.component {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* 테이블 컨테이너 */
+.table-container {
+    flex: 1;
+    min-height: 0;  /* flexbox에서 overflow 스크롤 작동에 필요 */
+}
+```
+
+`min-height: 0`은 flexbox 자식이 부모를 넘어서 overflow될 때 스크롤이 작동하도록 합니다.
 
 ---
 
