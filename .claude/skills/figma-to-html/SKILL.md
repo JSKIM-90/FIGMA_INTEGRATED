@@ -182,6 +182,37 @@ Figma_Conversion/Conversion/
 }
 ```
 
+### 6. 레이아웃 컨테이너: flexbox 우선
+
+**레이아웃 컨테이너**에는 `position: absolute` 대신 **flexbox**를 사용합니다.
+
+```css
+/* ❌ absolute 레이아웃 */
+.container {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+/* ✅ flexbox 레이아웃 */
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.container__content {
+    flex: 1;
+    min-height: 0;  /* overflow 스크롤 작동에 필요 */
+}
+```
+
+**absolute 허용 케이스**:
+- 배경 레이어 (`z-index: 0`으로 분리)
+- 오버레이, 팝업
+- 아이콘 내부 장식 요소
+
 ---
 
 ## Playwright 스크린샷
