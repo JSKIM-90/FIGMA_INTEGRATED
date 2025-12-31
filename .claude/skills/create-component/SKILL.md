@@ -25,8 +25,9 @@ Figma_Conversion/Conversion/[프로젝트명]/[컴포넌트명]/
 RNBT_architecture 동적 컴포넌트:
 ```
 RNBT_architecture/Projects/[프로젝트명]/page/components/[ComponentName]/
+├── assets/                    # SVG, 이미지 등 (Figma_Conversion에서 복사)
 ├── views/component.html       # 데이터 바인딩 마크업
-├── styles/component.css       # 스타일 (#component-container 스코프)
+├── styles/component.css       # 스타일 (.component-name 스코프)
 ├── scripts/
 │   ├── register.js            # 초기화 + 메서드 정의
 │   └── beforeDestroy.js       # 정리
@@ -100,6 +101,99 @@ RNBT_architecture/Projects/[프로젝트명]/page/components/[ComponentName]/
 | **before_load** | 컴포넌트 register 이전 | 이벤트 핸들러 등록 |
 | **loaded** | 컴포넌트 completed 이후 | 데이터 발행 및 interval 관리 |
 | **before_unload** | 컴포넌트 beforeDestroy 이전 | 리소스 정리 |
+
+---
+
+## fx.js 함수형 프로그래밍
+
+컴포넌트 코드는 가능한 **fx.js**를 활용하여 함수형으로 작성합니다.
+
+### 기본 함수
+
+| 함수 | 용도 | 예시 |
+|------|------|------|
+| `fx.go` | 파이프라인 실행 | `fx.go(data, fx.filter(...), fx.map(...))` |
+| `fx.pipe` | 파이프라인 함수 생성 | `const process = fx.pipe(filter, map)` |
+| `fx.each` | 순회 (부수효과) | `fx.each(item => console.log(item), list)` |
+| `fx.map` | 변환 | `fx.map(x => x * 2, [1,2,3])` |
+| `fx.filter` | 필터링 | `fx.filter(x => x > 0, list)` |
+| `fx.reduce` | 축약 | `fx.reduce((a, b) => a + b, 0, list)` |
+| `fx.find` | 검색 | `fx.find(x => x.id === 1, list)` |
+| `fx.take` | N개 추출 | `fx.take(5, list)` |
+
+### 활용 패턴
+
+#### 구독 등록 (fx.go + fx.each)
+```javascript
+fx.go(
+    Object.entries(this.subscriptions),
+    fx.each(([topic, fnList]) =>
+        fx.each(fn => this[fn] && subscribe(topic, this, this[fn]), fnList)
+    )
+);
+```
+
+#### 필드 렌더링 (fx.go + fx.each)
+```javascript
+fx.go(
+    config.fields,
+    fx.each(({ key, selector, suffix }) => {
+        const el = this.element.querySelector(selector);
+        if (el) el.textContent = suffix ? `${data[key]}${suffix}` : data[key];
+    })
+);
+```
+
+#### 데이터 변환 (fx.go + fx.map + fx.filter)
+```javascript
+const activeItems = fx.go(
+    data.items,
+    fx.filter(item => item.status === 'active'),
+    fx.map(item => ({ ...item, label: `[${item.id}] ${item.name}` })),
+    fx.take(10)
+);
+```
+
+#### 집계 (fx.go + fx.reduce)
+```javascript
+const total = fx.go(
+    data.items,
+    fx.map(item => item.value),
+    fx.reduce((a, b) => a + b, 0)
+);
+```
+
+#### 파이프라인 함수 재사용 (fx.pipe)
+```javascript
+const processItems = fx.pipe(
+    fx.filter(item => item.value > 0),
+    fx.map(item => ({ ...item, percent: item.value / 100 })),
+    fx.take(10)
+);
+
+// 재사용
+const cpuItems = processItems(cpuData);
+const gpuItems = processItems(gpuData);
+```
+
+### 명령형 vs 함수형
+
+```javascript
+// ❌ 명령형
+const results = [];
+for (const item of data.items) {
+    if (item.value > 50) {
+        results.push({ ...item, highlight: true });
+    }
+}
+
+// ✅ 함수형 (fx.js)
+const results = fx.go(
+    data.items,
+    fx.filter(item => item.value > 50),
+    fx.map(item => ({ ...item, highlight: true }))
+);
+```
 
 ---
 
@@ -232,6 +326,113 @@ function renderData(config, { response }) {
     if (!data) return;
     // 렌더링 로직
 }
+```
+
+### 6. 동적 리스트 렌더링 패턴 (Template Clone)
+
+**사용 시점**: 리스트 아이템 개수가 데이터에 따라 변하는 경우
+
+#### HTML (template 요소 사용)
+```html
+<div class="list-container">
+    <div class="list">
+        <!-- Template: 런타임에 복제될 아이템 구조 -->
+        <template id="list-item-template">
+            <div class="list__item">
+                <span class="item__rank">1</span>
+                <span class="item__name">-</span>
+                <div class="item__progress">
+                    <div class="progress__bar" style="--progress: 0%;"></div>
+                </div>
+                <span class="item__value">0%</span>
+            </div>
+        </template>
+    </div>
+</div>
+```
+
+#### register.js
+```javascript
+const config = {
+    selectors: {
+        list: '.list',
+        template: '#list-item-template',
+        // 아이템 내부 셀렉터 (아이템 기준 상대 경로)
+        rank: '.item__rank',
+        name: '.item__name',
+        progressBar: '.progress__bar',
+        value: '.item__value'
+    },
+    fields: {
+        rank: 'TBD_rank',
+        name: 'TBD_name',
+        value: 'TBD_value'
+    }
+};
+
+function renderList(config, { response }) {
+    const { data } = response;
+    if (!data || !data.items) return;
+
+    const root = this.element;
+    const list = root.querySelector(config.selectors.list);
+    const template = root.querySelector(config.selectors.template);
+
+    if (!list || !template) return;
+
+    // 1. 기존 아이템 제거 (template 제외)
+    list.querySelectorAll('.list__item').forEach(item => item.remove());
+
+    // 2. 데이터 기반 아이템 생성
+    data.items.forEach((itemData, index) => {
+        // template 복제
+        const clone = template.content.cloneNode(true);
+        const item = clone.querySelector('.list__item');
+
+        // 필드 바인딩
+        const rankEl = item.querySelector(config.selectors.rank);
+        if (rankEl) rankEl.textContent = itemData[config.fields.rank] ?? (index + 1);
+
+        const nameEl = item.querySelector(config.selectors.name);
+        if (nameEl) nameEl.textContent = itemData[config.fields.name] ?? '-';
+
+        const progressBar = item.querySelector(config.selectors.progressBar);
+        const value = itemData[config.fields.value] ?? 0;
+        if (progressBar) progressBar.style.setProperty('--progress', `${value}%`);
+
+        const valueEl = item.querySelector(config.selectors.value);
+        if (valueEl) valueEl.textContent = `${value}%`;
+
+        // 이벤트용 데이터 저장
+        item.dataset.index = index;
+
+        // 3. 리스트에 추가
+        list.appendChild(item);
+    });
+}
+```
+
+#### 고정 개수 vs 동적 개수
+
+| 유형 | 특징 | 패턴 |
+|------|------|------|
+| **고정 개수** | 아이템 수가 정해짐 (예: 2개 섹션) | `querySelectorAll` + 인덱스 매칭 |
+| **동적 개수** | 아이템 수가 데이터에 따라 변함 | `template` + `cloneNode` |
+
+```javascript
+// 고정 개수: BusinessStatus 방식
+const sections = root.querySelectorAll('.item[data-section]');
+data.sections.forEach((sectionData, i) => {
+    const sectionEl = sections[i];
+    // 값 업데이트만
+});
+
+// 동적 개수: PerformanceMonitoring 방식
+list.querySelectorAll('.list__item').forEach(item => item.remove());
+data.items.forEach(itemData => {
+    const clone = template.content.cloneNode(true);
+    // 값 설정 후 appendChild
+});
 ```
 
 ---
@@ -506,8 +707,17 @@ console.log('[ComponentName] Destroyed');
 
 ---
 
+## 참고 문서
+
+| 문서 | 참고 시점 | 내용 |
+|------|----------|------|
+| `discussions/2025-12-30_component_standalone.md` | API/Figma 없이 컴포넌트 개발 시 | 미리 완성 가능한 것 vs TBD 항목 구분 |
+| `discussions/2025-12-31_config_pattern_catalog.md` | Config 구조 설계 시 | Field, Chart, Table 등 Config 패턴 카탈로그 |
+
 ## 참고 예제
 
-- `RNBT_architecture/Examples/example_tutorial/` - 교육용 대시보드
-- `RNBT_architecture/Projects/ECO/` - 데이터센터 관리
-- `RNBT_architecture/discussions/2025-12-31_config_pattern_catalog.md` - Config 패턴 카탈로그
+| 예제 | 참고 시점 | 특징 |
+|------|----------|------|
+| `RNBT_architecture/Examples/example_tutorial/` | 처음 시작할 때 | 기본 구조, 교육용 대시보드 |
+| `RNBT_architecture/Projects/ECO/` | 실제 프로젝트 패턴 확인 시 | 데이터센터 관리, 다양한 컴포넌트 |
+| `RNBT_architecture/Projects/HANA_BANK_HIT_Dev/` | 동적 리스트 구현 시 | PerformanceMonitoring (template clone 패턴) |
