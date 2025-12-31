@@ -1,90 +1,161 @@
 ---
 name: figma-to-html
-description: Figma 디자인을 정적 HTML/CSS로 변환합니다. Figma 링크나 node-id가 제공되면 MCP를 통해 디자인 정보를 가져와 정확한 코드를 생성합니다. Use when converting Figma designs to HTML/CSS, or when user mentions Figma links, design conversion, or component implementation.
+description: Figma 디자인을 정적 HTML/CSS로 변환합니다. Figma 링크나 node-id가 제공되면 MCP를 통해 디자인 정보를 가져와 정확한 코드를 생성합니다. Use when converting Figma designs to HTML/CSS, or when user mentions Figma links, design conversion, or static HTML implementation.
 ---
 
 # Figma to HTML/CSS 변환
 
-Figma 디자인을 정적 HTML/CSS로 변환하는 Skill입니다.
+Figma 디자인을 **정적 HTML/CSS**로 변환하는 Skill입니다.
+스크립트 작업은 하지 않습니다 (순수 퍼블리싱).
 
 ## 사전 조건
 
 - Figma Desktop 앱 실행 중
 - 대상 Figma 파일이 열려 있음
-- Figma MCP 서버 등록됨 (`claude mcp add figma-desktop --transport http --url http://127.0.0.1:3845/mcp`)
+- Figma MCP 서버 등록됨
+
+```bash
+claude mcp add figma-desktop --transport http --url http://127.0.0.1:3845/mcp
+```
+
+---
 
 ## 워크플로우
 
 ```
-1. Figma 링크에서 node-id 추출 (25-1393 → 25:1393)
-2. MCP 도구 호출
-   - get_design_context (dirForAssetWrites 필수)
-   - get_screenshot (원본 비교용)
+1. Figma 링크에서 node-id 추출
+   - URL의 node-id 파라미터: 25-1393 → 25:1393 (하이픈을 콜론으로)
+
+2. MCP 도구 호출 (병렬 실행)
+   ├─ get_design_context (dirForAssetWrites 필수!)
+   │  └─ 에셋 자동 다운로드 + Tailwind 코드 반환
+   └─ get_screenshot
+      └─ Figma 원본 스크린샷 (비교 기준)
+
 3. Tailwind → 순수 CSS 변환
+   - MCP가 제공한 값 그대로 사용 (추측 금지!)
+
 4. HTML/CSS 파일 생성
+   - 에셋 경로: ./assets/파일명.svg
+
 5. Playwright 스크린샷 캡처
-6. 시각적 비교 및 수정
+   - viewport를 Figma 프레임 크기와 동일하게 설정
+
+6. 시각적 비교
+   ├─ get_screenshot 결과 (원본)
+   └─ Playwright 스크린샷 (구현물)
+
+7. 차이점 발견 시
+   ├─ MCP 데이터 다시 확인
+   ├─ CSS 수정 (추측 금지, 데이터 기반)
+   └─ 5-6 반복
+
+8. 완료 판단
+   └─ 원본과 구현물이 시각적으로 일치할 때만 완료
 ```
+
+---
 
 ## MCP 도구 사용
 
 ### 디자인 정보 + 에셋 다운로드
+
 ```javascript
 mcp__figma-desktop__get_design_context({
   nodeId: "781:47496",
   clientLanguages: "html,css",
   clientFrameworks: "vanilla",
-  dirForAssetWrites: "./Conversion/[프로젝트명]/[컴포넌트명]/assets"
+  dirForAssetWrites: "./Figma_Conversion/Conversion/[프로젝트명]/[컴포넌트명]/assets"
 })
 ```
 
-### 원본 스크린샷 (비교용)
+**필수**: `dirForAssetWrites` 파라미터로 에셋 자동 저장
+
+### 원본 스크린샷 (비교 기준)
+
 ```javascript
 mcp__figma-desktop__get_screenshot({ nodeId: "781:47496" })
 ```
 
+---
+
 ## 출력 폴더 구조
 
 ```
-Conversion/
+Figma_Conversion/Conversion/
 └── [프로젝트명]/
     └── [컴포넌트명]/
-        ├── assets/           # SVG, 이미지 에셋 (자동 다운로드)
-        ├── screenshots/      # 구현물 스크린샷
+        ├── assets/              # SVG, 이미지 에셋 (자동 다운로드)
+        ├── screenshots/         # 구현물 스크린샷
         │   └── impl.png
         ├── [컴포넌트명].html
         └── [컴포넌트명].css
 ```
 
+---
+
 ## 핵심 규칙
 
-### 추측 금지 원칙
-- MCP가 제공하는 정확한 데이터 사용
-- "비슷해 보인다" ≠ "일치한다"
-- 차이점 발견 시 MCP 데이터 다시 확인
+### 1. 추측 금지 원칙 (가장 중요!)
 
-### 에셋 규칙
-- `dirForAssetWrites`로 에셋 자동 다운로드
-- 로컬 경로 사용 (`./assets/파일명.svg`)
-- `http://127.0.0.1:3845/...` URL 직접 사용 금지
+```
+❌ 잘못된 접근:
+- "이 정도면 비슷해 보이니까 완료"
+- "대충 이 값이면 맞겠지"
+- CSS 값을 "추측"해서 조정
 
-### 컨테이너 구조
+✅ 올바른 접근:
+- get_screenshot → 유일한 원본
+- get_design_context → 정확한 구조와 수치
+- Tailwind 클래스를 CSS로 변환할 때 값 그대로 사용
+- 시각적 차이가 있으면 MCP 데이터 다시 확인
+```
+
+### 2. 에셋 규칙
+
+| 규칙 | 설명 |
+|------|------|
+| 에셋 자동 다운로드 | `dirForAssetWrites` 파라미터 필수 |
+| 로컬 경로 사용 | `./assets/파일명.svg` 형식 |
+| localhost URL 금지 | `http://127.0.0.1:3845/...` 직접 사용 금지 |
+| 외부 아이콘 금지 | 새로운 아이콘 패키지 가져오기 금지 |
+| Figma 페이로드만 | Figma에서 제공된 에셋만 사용 |
+| 임의 생성 금지 | Figma에 없는 에셋 만들지 않음 |
+
+### 3. 컨테이너 구조 패턴
+
 ```html
+<!-- Figma 선택 요소 = 컨테이너 -->
 <div id="component-container">
   <!-- Figma 내부 구조 그대로 -->
 </div>
 ```
-- 컨테이너 크기 = Figma 선택 요소 크기
-- `overflow: auto` 추가 (동적 렌더링 대응)
 
-### box-sizing 주의
+**규칙:**
+- 컨테이너 크기 = Figma 선택 요소 크기 (metadata에서 확인)
+- `overflow: auto` 추가 (동적 렌더링 대응)
+- Figma 스타일 그대로 유지 (임의로 100%로 변경 금지)
+
+### 4. box-sizing 주의사항
+
 ```css
-.element {
-  box-sizing: border-box;
-  height: 24px;  /* Figma에서 측정한 높이 명시 */
-  border: 1px solid #000;
+/* ❌ height 없으면 border가 별도 추가됨 */
+.button {
+    box-sizing: border-box;
+    border: 1px solid #000;
+    padding: 6px 15px;
+}
+
+/* ✅ height 명시하면 border가 높이에 포함됨 */
+.button {
+    box-sizing: border-box;
+    height: 24px;  /* Figma에서 측정한 높이 명시 */
+    border: 1px solid #000;
+    padding: 6px 15px;
 }
 ```
+
+---
 
 ## Playwright 스크린샷
 
@@ -94,21 +165,62 @@ const { chromium } = require('playwright');
 (async () => {
   const browser = await chromium.launch();
   const page = await browser.newPage({
-    viewport: { width: 524, height: 350 }  // Figma 프레임 크기
+    viewport: { width: 524, height: 350 }  // Figma 프레임 크기와 동일
   });
-  await page.goto('http://localhost:3000/path/to/component.html');
+  await page.goto('file:///path/to/component.html');
   await page.screenshot({ path: './screenshots/impl.png' });
   await browser.close();
 })();
 "
 ```
 
+**주의**: viewport 크기를 Figma metadata의 프레임 크기와 정확히 일치시킬 것
+
+---
+
+## 금지 사항
+
+```
+❌ 추측하지 않는다
+- "비슷해 보인다" ≠ "일치한다"
+- 확인하지 않고 완료라고 말하지 않음
+
+❌ 임의로 추가하지 않는다
+- 외부 아이콘 패키지
+- Figma에 없는 에셋
+- 임의의 스타일
+
+❌ 로컬호스트 URL 직접 사용
+- http://127.0.0.1:3845/... URL을 HTML에 직접 사용
+
+❌ 고정 사이즈 임의 변경
+- Figma metadata에 명시된 크기 그대로 구현
+
+❌ 스크린샷 비교 생략
+- 매번 get_screenshot과 Playwright 결과 비교 필수
+```
+
+---
+
 ## 완료 체크리스트
 
+```
+- [ ] Figma 원본 스크린샷 확보 (get_screenshot)
+- [ ] 에셋 자동 다운로드 완료 (dirForAssetWrites)
 - [ ] 전체 컨테이너 크기가 Figma와 일치
 - [ ] gap 값 정확 (row-gap ≠ column-gap 체크)
 - [ ] 헤더-컨텐츠 간격 일치
 - [ ] 상단/하단 여백 일치
 - [ ] border 있는 요소에 height 명시
-- [ ] 에셋 로컬 경로로 변환
-- [ ] Playwright 스크린샷과 Figma 원본 비교 완료
+- [ ] 에셋 로컬 경로로 변환 완료
+- [ ] Playwright 스크린샷 캡처 완료
+- [ ] Figma 원본과 구현물 시각적 비교 완료
+- [ ] 차이점 없음 확인
+```
+
+---
+
+## 다음 단계
+
+변환이 완료되면 **create-component** Skill을 사용하여
+정적 HTML/CSS를 RNBT 동적 컴포넌트로 변환할 수 있습니다.
